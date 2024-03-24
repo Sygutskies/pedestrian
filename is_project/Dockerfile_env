@@ -1,0 +1,10 @@
+FROM python:3.11-slim
+RUN apt-get -y update
+RUN apt-get install -y --no-install-recommends \
+  build-essential \
+  libffi-dev \
+  libpq-dev \
+  bash
+COPY ./requirements.txt ./
+RUN pip install pip==20.0.2
+RUN pip install --no-cache-dir -r requirements.txt

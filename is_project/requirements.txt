@@ -1,0 +1,7 @@
+ultralytics
+tensorflow==2.15.1
+scikit-learn
+numpy
+pandas
+seaborn
+opencv-python

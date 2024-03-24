@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 1
+names: ['road']
+
+roboflow:
+  workspace: road-segmentation
+  project: road_segmentationv1.1
+  version: 3
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/road-segmentation/road_segmentationv1.1/dataset/3

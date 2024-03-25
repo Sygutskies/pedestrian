@@ -5,6 +5,8 @@ RUN apt-get install -y --no-install-recommends \
   libffi-dev \
   libpq-dev \
   bash
-COPY ./requirements.txt ./
-RUN pip install pip==20.0.2
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+COPY ./is_project/requirements.txt ./
+RUN pip install pip==23.0
 RUN pip install --no-cache-dir -r requirements.txt
+ADD . /pedestrian

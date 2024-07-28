@@ -1,5 +1,5 @@
 from is_models.motion_model import MotionModel
-from is_models.phone_model import PhoneModel
+from is_models.phone_model_cnn import PhoneModel
 from ultralytics import YOLO
 import cv2
 import numpy as np

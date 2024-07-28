@@ -2,7 +2,7 @@ import os
 # Function to rename multiple files
 def main():
 	i = 0
-	path="HAR/Phone/"
+	path="pedestrian/is_project/data/phone/"
 	for filename in os.listdir(path):
 		my_dest ="phone" + str(i) + ".mp4"
 		my_source =path + filename
@@ -12,6 +12,7 @@ def main():
 		os.rename(my_source, my_dest)
 		i += 1
 # Driver Code
-if __name__ == '__main__':
-	# Calling main() function
-	main()
+# if __name__ == '__main__':
+# 	# Calling main() function
+# 	main()
+main()

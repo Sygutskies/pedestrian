@@ -1,32 +1,38 @@
-import tensorflow as tf
+import torch
 
-class PhoneModel(tf.keras.Model):
+class PhoneModel(torch.nn.Module):
     
-    def __init__(self):
+    def __init__(self, input_size):
         super().__init__()
-        self.lstm1 = tf.keras.layers.LSTM(64, return_sequences=True, activation='tanh')
-        self.ln1 = tf.keras.layers.LayerNormalization(axis=1)
-        self.lstm2 = tf.keras.layers.LSTM(128, return_sequences=True, activation='tanh')
-        self.lstm3 = tf.keras.layers.LSTM(128, return_sequences=True, activation='tanh')
-        self.ln2 = tf.keras.layers.LayerNormalization(axis=1)
-        self.lstm4 = tf.keras.layers.LSTM(64, return_sequences=True, activation='tanh')
-        self.lstm5 = tf.keras.layers.LSTM(64, return_sequences=True, activation='tanh')
-        self.ln3 = tf.keras.layers.LayerNormalization(axis=1)
-        self.lstm6 = tf.keras.layers.LSTM(64, return_sequences=False, activation='tanh')
-        self.d1 = tf.keras.layers.Dense(128, activation='relu')
-        self.d2 = tf.keras.layers.Dense(64, activation='relu')
-        self.out_1 = tf.keras.layers.Dense(2, activation='softmax')
+        self.lstm1 = torch.nn.LSTM(input_size=input_size, hidden_size=16, num_layers=1, batch_first=True)
+        self.ln1 = torch.nn.LayerNorm(16)
+        self.lstm2 = torch.nn.LSTM(input_size=16, hidden_size=16, num_layers=1, batch_first=True)
+        self.relu = torch.nn.ReLU()
+        self.tanh = torch.nn.Tanh()
+        self.d1 = torch.nn.Linear(16,16)
+        self.d2 = torch.nn.Linear(16,1)
+        self.dropout = torch.nn.Dropout(0.5)
 
-    def call(self, inputs):
-        x = self.lstm1(inputs)
-        # x = self.ln1(x)
-        # x = self.lstm2(x)
-        # x = self.lstm3(x)
-        # x = self.ln2(x)
-        # x = self.lstm4(x)
-        # x = self.lstm5(x)
-        x = self.ln3(x)
-        x = self.lstm6(x)
+        self.apply(initialize_weights)
+
+    def forward(self, x):
+        x, _ = self.lstm1(x)
+        x = self.tanh(x)
+        x = self.ln1(x)
+        x, _ = self.lstm2(x)
+        x = self.tanh(x)
+        x = x[:, -1, :]
         x = self.d1(x)
+        x = self.relu(x)
+        x = self.dropout(x)
         x = self.d2(x)
-        return self.out_1(x)
+        x = torch.sigmoid(x)
+        return x
+    
+def initialize_weights(model):
+    if isinstance(model, torch.nn.Linear) or isinstance(model, torch.nn.LSTM) or isinstance(model, torch.nn.LSTMCell):
+        for name, param in model.named_parameters():
+            if 'weight' in name:
+                torch.nn.init.kaiming_normal_(param.data)
+            elif 'bias' in name:
+                torch.nn.init.constant_(param.data, 0)

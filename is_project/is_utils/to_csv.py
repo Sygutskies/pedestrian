@@ -2,34 +2,41 @@ import csv
 from ultralytics import YOLO
 import os
 import numpy as np
+import re
 
-def movie(results, name):
+def movie(results, name, index):
     rows = []
+    flag=False
     for result in results:
         if result.cpu().boxes.xyxy.size(dim=0) == 0:
             print('no person')
+            flag=False
         else:
+            if not flag:
+                index +=1
             row = []
-            row.append(name)
+            row.append(re.sub('[^a-zA-Z]+', '', name)[:-2] + ' (' + str(index) + ')')
             for cord in result.cpu().boxes.xyxy[0].numpy():
                 row.append(cord)
             for cords in result.cpu().keypoints.xy[0].numpy():
                 for cord in cords:
                     row.append(cord)
             rows.append(row)
+            flag=True
 
-    return rows
+    return rows, index
 
 model = YOLO("yolov8s-pose.pt")
-directory = 'pedestrian/is_project/phone_book'
+directory = 'pedestrian/is_project/data/phone/'
     
 header = ['name','left', 'top', 'right', 'bottom', 'nose_x', 'nose_y', 'left_eye_x', 'left_eye_y', 'right_eye_x', 'right_eye_y', 'left_ear_x', 'left_ear_y', 'right_ear_x', 'right_ear_y', 'left_shoulder_x', 'left_shoulder_y', 'right_shoulder_x', 'right_shoulder_y', 'left_elbow_x', 'left_elbow_y', 'right_elbow_x', 'right_elbow_y', 'left_wrist_x', 'left_wrist_y', 'right_wrist_x', 'right_wrist_y', 'left_hip_x', 'left_hip_y', 'right_hip_x', 'right_hip_y', 'left_knee_x', 'left_knee_y', 'right_knee_x', 'right_knee_y', 'left_ankle_x', 'left_ankle_y', 'right_ankle_x', 'right_ankle_y']
-with open('phone_book.csv', 'w', newline='') as file:
+with open('training_movies/phone.csv', 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(header)
+    index = 0
     for filename in os.listdir(directory):
         if filename.endswith(".mp4") or filename.endswith(".avi") or filename.endswith(".webm"):
             f = os.path.join(directory, filename)
             results = model(f, stream=True)
-            rows = movie(results, filename)
+            rows, index = movie(results, filename, index)
             writer.writerows(rows)

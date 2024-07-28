@@ -1,7 +1,7 @@
-ultralytics
-tensorflow==2.15.1
+ultralytics==8.1.32
 scikit-learn
 numpy
 pandas
 seaborn
 opencv-python
+tensorboard
